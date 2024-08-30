@@ -63,7 +63,8 @@ Default: ~/Pictures/wallpapers.
 
 ## -f, --file
 Where to look for selected-wallpaper.
-Default: TODO.
+This is simply the full path to the selected wallpaper.
+Default: $XDG_CONFIG_DIR/wallpaper-utility/wallpaper.
 
 ## Config
 Later, support for a config file MAY be added. 
