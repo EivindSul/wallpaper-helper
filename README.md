@@ -1,9 +1,9 @@
-# Wallpaper-utility
+# Wallpaper-helper
 
 **This is currently work in progress! Nothing works as of yet.**
 
 ## What?
-A simple to use wallpaper utility for automatically setting or switching wallpapers
+A simple to use wallpaper helper for automatically setting or switching wallpapers
 in hyprland, without having to type out monitor names or file paths.
 
 ## Why?
@@ -34,7 +34,7 @@ The path to the new wallpaper is stored in a cache file in the directory
 with this program, namely "selected-wallpaper".
 This is read when using the init function, to make wallpaper selections persistent.
 
-This is my first proper shell utility, so feel free to message me or make an issue/PR
+This is my first proper shell program, so feel free to message me or make an issue/PR
 if you have some advice on how to make it better! :)
 
 # Planned features:
@@ -64,7 +64,7 @@ Default: ~/Pictures/wallpapers.
 ## -f, --file
 Where to look for selected-wallpaper.
 This is simply the full path to the selected wallpaper.
-Default: $XDG_CONFIG_DIR/wallpaper-utility/wallpaper.
+Default: $XDG_CONFIG_DIR/wallpaper-helper/wallpaper.
 
 ## Config
 Later, support for a config file MAY be added. 
