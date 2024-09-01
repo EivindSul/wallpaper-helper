@@ -5,17 +5,20 @@ VERBOSE_MODE=false
 SELECTED_WALLPAPER_DIR="$HOME/.config/wallpaper-helper"
 SELECTED_WALLPAPER_FILE="$SELECTED_WALLPAPER_DIR/wallpaper"
 WALLPAPERS_DIR=$HOME/Pictures/wallpapers/
+OUT=/dev/null
 
 # Function to display script usage
 usage() {
     echo "Usage: $0 [OPTIONS]"
     echo "Options:"
     echo " -h, --help               Display this help message"
+    echo " -v, --verbose            Enable verbose mode"
     echo " -f, --file               FILE Specify an output file"
+    echo " -d, --file               FILE Specify an output file"
     echo " -n, --next               Set wallpaper to next in directory"
     echo " -p, --previous           Set wallpaper to previous in directory"
     echo " -i, --init               Set wallpaper to previous selection, or first in the directory"
-    echo " -w, --wallpaper-util     Set which wallpaper util to use. Default: Hyprpaper"
+    echo " -w, --wallpaper-daemon   Set which wallpaper util to use. Default: Hyprpaper"
 }
 
 has_argument() {
@@ -43,7 +46,7 @@ save_wallpaper() {
 set_hyprpaper() {
     MONITOR=$1
     if [ -z $MONITOR ]; then
-        echo "No monitor was specified, using the first in the list..."
+        echo "No monitor was specified, using the first in the list..." > $OUT
         MONITOR=$( hyprctl -j monitors | jq -r '.[0].name' )
         if [ -z $MONITOR ]; then
             echo "hyprctl monitors did not return monitors, or jq is missing. Exiting." >&2
@@ -57,10 +60,16 @@ set_hyprpaper() {
         exit 1
     fi
 
-    hyprctl hyprpaper preload "$WALLPAPER" > /dev/null
-    hyprctl hyprpaper wallpaper "$MONITOR,$WALLPAPER" > /dev/null
+    echo "MONITOR is: $MONITOR" > $OUT
+    echo "WALLPAPER is: $WALLPAPER" > $OUT
+    echo "--------------------" > $OUT
+    echo "Trying: hyprctl hyprpaper preload $WALLPAPER" > $OUT
+    hyprctl hyprpaper preload "$WALLPAPER" > $OUT
+    echo "Trying: hyprctl hyprpaper wallpaper $MONITOR,$WALLPAPER" > $OUT
+    hyprctl hyprpaper wallpaper "$MONITOR,$WALLPAPER" > $OUT
 
-    hyprctl hyprpaper unload unused > /dev/null
+    echo "Unloading unused" > $OUT
+    hyprctl hyprpaper unload unused > $OUT
 }
 
 get_current_hyprpaper() {
@@ -107,8 +116,8 @@ next_wallpaper() {
     fi
 
     if [ "$NEXT_WALLPAPER" == "$CURRENT_WALLPAPER" ]; then
-        echo "Trying to set wallpaper to itself. Assuming current wallpaper is the last in the list."
-        echo "Changing NEXT_WALLPAPER to the first in the directory!"
+        echo "Trying to set wallpaper to itself. Assuming current wallpaper is the last in the list." > $OUT
+        echo "Changing NEXT_WALLPAPER to the first in the directory!" > $OUT
         NEXT_WALLPAPER=$(echo "$WALLPAPERS" | head --lines 1)
     fi
 
@@ -181,6 +190,10 @@ handle_options() {
                 usage
                 exit 0
                 ;;
+            -v | --verbose)
+                verbose_mode=true
+                OUT=/dev/stdout
+                ;;
             -f | --file*)
                 if ! has_argument $@; then
                     echo "File not specified." >&2
@@ -189,6 +202,17 @@ handle_options() {
                 fi
 
                 SELECTED_WALLPAPER_FILE=$(extract_argument $@)
+
+                shift
+                ;;
+            -d | --directory*)
+                if ! has_argument $@; then
+                    echo "Directory not specified." >&2
+                    usage
+                    exit 1
+                fi
+
+                WALLPAPERS_DIR=$(extract_argument $@)
 
                 shift
                 ;;
@@ -204,7 +228,7 @@ handle_options() {
                 init_wallpaper
                 exit 0
                 ;;
-            -w | --wallpaper-util)
+            -w | --wallpaper-daemon)
                 echo "TODO! Currently, only hyprpaper is supported." >&2
                 exit 1
                 ;;

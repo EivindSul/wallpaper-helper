@@ -1,6 +1,6 @@
 # Wallpaper-helper
 
-**This is currently work in progress! Nothing works as of yet.**
+**This is currently work in progress! Some features are missing.**
 
 ## What?
 A simple to use wallpaper helper for automatically setting or switching wallpapers
@@ -11,37 +11,43 @@ I am building this tool because I find it frustrating to run manual commands
 to set my wallpaper, and I know that this can be automated very easily.
 
 ## How?
-I am making some simple functions that should be easily customizable,
-so you can tailor them to your needs (i.e, making it work for other window managers).
+This tool recursively finds all jpgs and pngs in a given directory, by default
+~/Pictures/wallpapers. It uses commands from the wallpaper daemon to
+find the currently applied wallpaper, and applies the next (or previous!)
+in the order they appear in the filesystem.
 
-The init function reads the selected wallpaper from a file. If none is
-selected, it will select one for you so you are not left with a black desktop!
-If it does not find any, it will promplty send a desktop notification to alert
-you that it did not perform its job.
+The applied wallpaper is stored in a file, which can be used to reapply
+the selected wallpaper upon startup. This is the --init function.
+Default location for the file is ~/.config/wallpaper-helper/wallpaper.
 
-The switch function will look for wallpapers in a directory, the default is
-~/Pictures/wallpapers. Note the uppercase P in Pictures and lowercase
-w in wallpapers, I have a strange naming pattern.
-Anyways, a "find" command looks in this directory, and in all 
-sub-directories, for .jpgs and .pngs. These are all added to a list.
+The program also works without this file, which can be enabled with 
+--nofile. In this case, it will just use the loaded wallpaper to set
+the next. If none is set, it will use the first in the list.
 
-The progam uses "hyprctl hyprpaper listactive" to get the currently
-set wallpaper, and fetches the next in order from the list of all
-wallpapers. It uses "hyprctl hyprpaper preload" and 
-"hyprctl hyprpaper wallpaper" to set the wallpaper to this new selection.
+# Example usage:
+I launch and run it through hyprland.
 
-The path to the new wallpaper is stored in a cache file in the directory
-with this program, namely "selected-wallpaper".
-This is read when using the init function, to make wallpaper selections persistent.
+wallpaper-helper is placed alongside hyprland in
+~/.config/hypr.
+```
+#hyprland.conf
 
-This is my first proper shell program, so feel free to message me or make an issue/PR
-if you have some advice on how to make it better! :)
+exec-once = hyprpaper & mako & waybar
+exec-once = ~/.config/hypr/wallpaper-helper.sh -i
 
-# Planned features:
+bind = $mod, n, exec, ~/.config/hypr/wallpaper-helper.sh -n
+bind = $mod SHIFT, n, exec, ~/.config/hypr/wallpaper-helper.sh -p
+```
+
+# Features:
 
 ## -h, --help
 A "help" function will display all command line flags,
 as well as (eventually) config information.
+
+## -v, --verbose
+Verbose redirects all output to stdout, so that you can see
+what goes wrong.
 
 ## -i, --init
 An "init" function will make sure that a valid wallpaper is set upon login.
@@ -66,17 +72,26 @@ Where to look for selected-wallpaper.
 This is simply the full path to the selected wallpaper.
 Default: $XDG_CONFIG_DIR/wallpaper-helper/wallpaper.
 
+# Planned features:
+
+## -w, --wallpaper-daemon
+Which wallpaper utility to use.
+Default: hyprpaper. 
+Eventually, support for other wlroots wallpapers will be added,
+such as 
+
 ## Config
 Later, support for a config file MAY be added. 
 This will most likely just be the default flags or options that will be passed
 to the program, such as wallpaper directory, which wallpaper daemon is used,
 and so on.
 
-# MVP
-Initially, the program will just support hyprland and hyprpaper, with no config file.
-
+## Multi monitor support
 It will also just work on one monitor, which is the first one to alphabetically appear.
 Later, I will add support for multiple monitors, through a command line flag.
 This flag will be -m, for monitor, and can be either the name of a monitor "eDP-1", "DP-1",
 or the index 0, 1, etc.
 
+# Notes
+If you want a more intuitive UI, try [waypaper](https://github.com/anufrievroman/waypaper).
+Wallpaper-helper is mostly intended to use upon startup, and to automate using keybinds.
