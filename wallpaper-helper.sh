@@ -39,8 +39,7 @@ get_wallpapers() {
 }
 
 save_wallpaper() {
-    echo "$1" > $HOME/.config/hypr/wallpaper
-    echo "$1" > $(pwd)/wallpaper
+    echo "$1" > $SELECTED_WALLPAPER_FILE
 }
 
 set_hyprpaper() {
